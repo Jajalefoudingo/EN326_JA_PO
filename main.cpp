@@ -20,6 +20,7 @@ int main()
 #endif
 
     while (true) {
+        printf("Hello\n");
         led = !led;
         ThisThread::sleep_for(BLINKING_RATE);
     }
