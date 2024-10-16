@@ -17,17 +17,22 @@
 
 using namespace std::chrono;
 
+Ticker flipper;
 Timer t;
 int sig_timer = 0;
 
 void button_rise_handle();
 void button_fall_handle();
+void flip();
 
 int main()
 {
     InterruptIn button(BUTTON1);
     button.rise(&button_rise_handle);
     button.fall(&button_fall_handle);
+
+    led = 1;
+    flipper.attach(&flip, 0.2);
 
     while (true) {
         ThisThread::sleep_for(BLINKING_RATE);
@@ -41,13 +46,18 @@ int main()
 
 void button_rise_handle() {
     t.start();
-    led = 1;
+    //led = 1;
 }
 
 void button_fall_handle() {
     t.stop();
-    led = 0;
+    //led = 0;
     sig_timer = 1;
+}
+
+void flip()
+{
+    led = !led;
 }
 
 /*
