@@ -14,23 +14,41 @@
     bool led;
 #endif
 
-void button_handle();
+
+using namespace std::chrono;
+
+Timer t;
+int sig_timer = 0;
+
+void button_rise_handle();
+void button_fall_handle();
 
 int main()
 {
     InterruptIn button(BUTTON1);
-    button.rise(&button_handle);
+    button.rise(&button_rise_handle);
+    button.fall(&button_fall_handle);
 
     while (true) {
         ThisThread::sleep_for(BLINKING_RATE);
+        if(sig_timer) {
+            printf("The time taken was %llu milliseconds\n", duration_cast<milliseconds>(t.elapsed_time()).count());
+            t.reset();
+            sig_timer = 0;
+        }
     }
 }
 
-void button_handle() {
-    led = !led;
-    // printf("Button pressé\n");
+void button_rise_handle() {
+    t.start();
+    led = 1;
 }
 
+void button_fall_handle() {
+    t.stop();
+    led = 0;
+    sig_timer = 1;
+}
 
 /*
 I2C i2c(I2C_SDA, I2C_SCL);
