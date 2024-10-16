@@ -21,6 +21,7 @@ Ticker flipper;
 Timer t;
 int sig_timer = 0;
 
+
 void button_rise_handle();
 void button_fall_handle();
 void flip();
@@ -32,7 +33,8 @@ int main()
     button.fall(&button_fall_handle);
 
     led = 1;
-    flipper.attach(&flip, 0.2);
+    float led_rate = 1.0;
+    flipper.attach(&flip, led_rate);
 
     while (true) {
         ThisThread::sleep_for(BLINKING_RATE);
@@ -40,6 +42,9 @@ int main()
             printf("The time taken was %llu milliseconds\n", duration_cast<milliseconds>(t.elapsed_time()).count());
             t.reset();
             sig_timer = 0;
+
+            led_rate += 0.5;                    // Lorsque le bouton se relache on réduit la fréquence
+            flipper.attach(&flip, led_rate);    // On repasse ici la nouvelle frequence
         }
     }
 }
