@@ -15,9 +15,12 @@
 #endif
 
 
-#define ADDR_7_BIT 0x48
-#define ADDR_8_BIT 0x48 << 1
-#define REG_ADDR   0x00
+#define ADDR_7_BIT_TEMP   0x48
+#define ADDR_8_BIT_TEMP   0x48 << 1
+#define REG_ADDR_TEMP     0x00
+#define ADDR_7_BIT_HUMID  0x40
+#define ADDR_8_BIT_HUMID  0x40 << 1
+#define REG_ADDR_HUMID    0xE5
 
 using namespace std::chrono;
 
@@ -74,11 +77,13 @@ void flip();
 //// PARTIE 3 : Com I2C ////
 
 char temp_data[2] = {0};  
+char humid_data[2] = {0};
 
 int main() {
     I2C i2c(P1_I2C_SDA, P1_I2C_SCL);
 
     while(1) {
-        Print_temp_I2C(&i2c, ADDR_8_BIT, REG_ADDR, temp_data);
+        Print_temp_I2C(&i2c, ADDR_8_BIT_TEMP, REG_ADDR_TEMP, temp_data);
+        Print_humid_I2C(&i2c, ADDR_8_BIT_HUMID, REG_ADDR_HUMID, humid_data);
     }
 }
