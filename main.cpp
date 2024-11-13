@@ -2,8 +2,8 @@
  * Copyright (c) 2019 ARM Limited
  * SPDX-License-Identifier: Apache-2.0
  */
-
-#include "mbed.h"
+// #include "mbed.h"
+#include "utils.h"
 
 // Blinking rate in milliseconds
 #define BLINKING_RATE     500ms
@@ -14,6 +14,10 @@
     bool led;
 #endif
 
+
+#define ADDR_7_BIT 0x48
+#define ADDR_8_BIT 0x48 << 1
+#define REG_ADDR   0x00
 
 using namespace std::chrono;
 
@@ -35,7 +39,7 @@ void flip();
 //     button.fall(&button_fall_handle);
 
 //     led = 1;
-//     float led_rate = 1.0;
+//     float led_rate = 1.0;#include "utils.h"
 //     flipper.attach(&flip, led_rate);
 
 //     while (true) {
@@ -69,24 +73,12 @@ void flip();
 
 //// PARTIE 3 : Com I2C ////
 
-const int addr7bit = 0x48;      
-const int addr8bit = 0x48 << 1;
+char temp_data[2] = {0};  
 
 int main() {
     I2C i2c(P1_I2C_SDA, P1_I2C_SCL);
-    char reg_addr = 0x00;       
-    char temp_data[2] = {0};  
 
-    while (1) {
-        i2c.write(addr8bit, &reg_addr, 1);
-
-        i2c.read(addr8bit, temp_data, 2);
-
-        int16_t temp_raw = (temp_data[0] << 8) | temp_data[1];
-        int temperature_C = temp_raw / 128;  
-
-        printf("Temperature = %d C\n", temperature_C);
-
-        ThisThread::sleep_for(500ms);
+    while(1) {
+        Print_temp_I2C(&i2c, ADDR_8_BIT, REG_ADDR, temp_data);
     }
 }
