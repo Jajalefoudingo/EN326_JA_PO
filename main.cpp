@@ -26,67 +26,67 @@ void button_rise_handle();
 void button_fall_handle();
 void flip();
 
-int main()
-{
-    InterruptIn button(BUTTON1);
-    button.rise(&button_rise_handle);
-    button.fall(&button_fall_handle);
+//// PARTIE 2 TP : Led - Bouton ////
 
-    led = 1;
-    float led_rate = 1.0;
-    flipper.attach(&flip, led_rate);
+// int main()
+// {
+//     InterruptIn button(BUTTON1);
+//     button.rise(&button_rise_handle);
+//     button.fall(&button_fall_handle);
 
-    while (true) {
-        ThisThread::sleep_for(BLINKING_RATE);
-        if(sig_timer) {
-            printf("The time taken was %llu milliseconds\n", duration_cast<milliseconds>(t.elapsed_time()).count());
-            t.reset();
-            sig_timer = 0;
+//     led = 1;
+//     float led_rate = 1.0;
+//     flipper.attach(&flip, led_rate);
 
-            led_rate += 0.5;                    // Lorsque le bouton se relache on réduit la fréquence
-            flipper.attach(&flip, led_rate);    // On repasse ici la nouvelle frequence
-        }
-    }
-}
+//     while (true) {
+//         ThisThread::sleep_for(BLINKING_RATE);
+//         if(sig_timer) {
+//             printf("The time taken was %llu milliseconds\n", duration_cast<milliseconds>(t.elapsed_time()).count());
+//             t.reset();
+//             sig_timer = 0;
 
-void button_rise_handle() {
-    t.start();
-    //led = 1;
-}
+//             led_rate += 0.5;                    // Lorsque le bouton se relache on réduit la fréquence
+//             flipper.attach(&flip, led_rate);    // On repasse ici la nouvelle frequence
+//         }
+//     }
+// }
 
-void button_fall_handle() {
-    t.stop();
-    //led = 0;
-    sig_timer = 1;
-}
+// void button_rise_handle() {
+//     t.start();
+//     //led = 1;
+// }
 
-void flip()
-{
-    led = !led;
-}
+// void button_fall_handle() {
+//     t.stop();
+//     //led = 0;
+//     sig_timer = 1;
+// }
 
-/*
-I2C i2c(I2C_SDA, I2C_SCL);
+// void flip()
+// {
+//     led = !led;
+// }
 
-const int addr7bit = 0x48;      // 7 bit I2C address
-const int addr8bit = 0x48 << 1; // 8bit I2C address, 0x90
+//// PARTIE 3 : Com I2C ////
 
-int main()
-{
-    char cmd[2];
+const int addr7bit = 0x48;      
+const int addr8bit = 0x48 << 1;
+
+int main() {
+    I2C i2c(P1_I2C_SDA, P1_I2C_SCL);
+    char reg_addr = 0x00;       
+    char temp_data[2] = {0};  
+
     while (1) {
-        cmd[0] = 0x01;
-        cmd[1] = 0x00;
-        i2c.write(addr8bit, cmd, 2);
+        i2c.write(addr8bit, &reg_addr, 1);
 
-        ThisThread::sleep_for(500);
+        i2c.read(addr8bit, temp_data, 2);
 
-        cmd[0] = 0x00;
-        i2c.write(addr8bit, cmd, 1);
-        i2c.read(addr8bit, cmd, 2);
+        int16_t temp_raw = (temp_data[0] << 8) | temp_data[1];
+        int temperature_C = temp_raw / 128;  
 
-        float tmp = (float((cmd[0] << 8) | cmd[1]) / 256.0);
-        printf("Temp = %.2f\n", tmp);
+        printf("Temperature = %d C\n", temperature_C);
+
+        ThisThread::sleep_for(500ms);
     }
 }
-*/
