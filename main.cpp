@@ -1,12 +1,11 @@
-// /* mbed Microcontroller Library
-//  * Copyright (c) 2019 ARM Limited
-//  * SPDX-License-Identifier: Apache-2.0
-//  */
-// // #include "mbed.h"
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PARTIE 1 TP : Led - Bouton ////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // #include "utils.h"
 
-// // Blinking rate in milliseconds
-// #define BLINKING_RATE     500ms
+
+// #define BLINKING_RATE     500ms  // Blinking rate in milliseconds
 
 // #ifdef LED1
 //     DigitalOut led(LED1);
@@ -31,52 +30,82 @@
 // int sig_timer = 0;
 
 
-// // void button_rise_handle();
-// // void button_fall_handle();
-// // void flip();
+// void button_rise_handle();
+// void button_fall_handle();
+// void flip();
 
-// //// PARTIE 2 TP : Led - Bouton ////
+// int main()
+// {
+//     InterruptIn button(BUTTON1);
+//     button.rise(&button_rise_handle);
+//     button.fall(&button_fall_handle);
 
-// // int main()
-// // {
-// //     InterruptIn button(BUTTON1);
-// //     button.rise(&button_rise_handle);
-// //     button.fall(&button_fall_handle);
+//     led = 1;
+//     float led_rate = 1.0;#include "utils.h"
+//     flipper.attach(&flip, led_rate);
 
-// //     led = 1;
-// //     float led_rate = 1.0;#include "utils.h"
-// //     flipper.attach(&flip, led_rate);
+//     while (true) {
+//         ThisThread::sleep_for(BLINKING_RATE);
+//         if(sig_timer) {
+//             printf("The time taken was %llu milliseconds\n", duration_cast<milliseconds>(t.elapsed_time()).count());
+//             t.reset();
+//             sig_timer = 0;
 
-// //     while (true) {
-// //         ThisThread::sleep_for(BLINKING_RATE);
-// //         if(sig_timer) {
-// //             printf("The time taken was %llu milliseconds\n", duration_cast<milliseconds>(t.elapsed_time()).count());
-// //             t.reset();
-// //             sig_timer = 0;
+//             led_rate += 0.5;                    // Lorsque le bouton se relache on réduit la fréquence
+//             flipper.attach(&flip, led_rate);    // On repasse ici la nouvelle frequence
+//         }
+//     }
+// }
 
-// //             led_rate += 0.5;                    // Lorsque le bouton se relache on réduit la fréquence
-// //             flipper.attach(&flip, led_rate);    // On repasse ici la nouvelle frequence
-// //         }
-// //     }
-// // }
+// void button_rise_handle() {
+//     t.start();
+// }
 
-// // void button_rise_handle() {
-// //     t.start();
-// //     //led = 1;
-// // }
+// void button_fall_handle() {
+//     t.stop();
+//     sig_timer = 1;
+// }
 
-// // void button_fall_handle() {
-// //     t.stop();
-// //     //led = 0;
-// //     sig_timer = 1;
-// // }
+// void flip()
+// {
+//     led = !led;
+// }
 
-// // void flip()
-// // {
-// //     led = !led;
-// // }
 
-// // PARTIE 3 : Com I2C ////
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PARTIE 2 TP : Com I2C ////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// #include "utils.h"
+
+
+// #define BLINKING_RATE     500ms  // Blinking rate in milliseconds
+
+// #ifdef LED1
+//     DigitalOut led(LED1);
+// #else
+//     bool led;
+// #endif
+
+
+// #define ADDR_7_BIT_TEMP   0x48
+// #define ADDR_8_BIT_TEMP   0x48 << 1
+// #define REG_ADDR_TEMP     0xE3
+// #define ADDR_7_BIT_HUMID  0x40
+// #define ADDR_8_BIT_HUMID  0x40 << 1
+// #define REG_ADDR_HUMID    0xE5
+// #define ADDR_READ_PRESSURE  0x70 << 1 | 1
+// #define REG_ADDR_PRESSURE    0xF7
+
+// using namespace std::chrono;
+
 
 // char temp_data[2] = {0};  
 // char humid_data[2] = {0};
@@ -94,62 +123,128 @@
 // }
 
 
-// // PARTIE 4 : Ping Pong ////
+// #define ADDR_7_BIT_TEMP   0x48
+// #define ADDR_8_BIT_TEMP   0x48 << 1
+// #define REG_ADDR_TEMP     0xE3
+// #define ADDR_7_BIT_HUMID  0x40
+// #define ADDR_8_BIT_HUMID  0x40 << 1
+// #define REG_ADDR_HUMID    0xE5
+// #define ADDR_READ_PRESSURE  0x70 << 1 | 1
+// #define REG_ADDR_PRESSURE    0xF7
 
-// // #define STOP_FLAG 1
-
-// // Thread thread_ping(osPriorityNormal, 1024); // Thread avec une pile de 1024
-// // Thread thread_pong(osPriorityNormal, 1024);
-
-// // Mutex mutex;
-// // int cpt = 0;
-
-// // void ping()
-// // {
-// //     while (!ThisThread::flags_wait_any_for(STOP_FLAG, 0s)) {
-// //         mutex.lock();
-// //         printf("Ping\n");
-// //         cpt++;
-// //         mutex.unlock();
-// //         ThisThread::sleep_for(100ms);
-// //     }
-// // }
-
-// // void pong()
-// // {
-// //     while (!ThisThread::flags_wait_any_for(STOP_FLAG, 0s)) {
-// //         mutex.lock();
-// //         printf("Pong\n");
-// //         cpt++;
-// //         mutex.unlock();
-// //         ThisThread::sleep_for(100ms);
-// //     }
-// // }
+// using namespace std::chrono;
 
 
-// // int main()
-// // {
-// //     printf("Hello World\n");
+// char temp_data[2] = {0};  
+// char humid_data[2] = {0};
+// char pressure_data[3] = {0};  
 
-// //     thread_ping.start(callback(ping)); // Démarrer les threads
-// //     thread_pong.start(callback(pong));
+// int main() {
+//     I2C i2c(P1_I2C_SDA, P1_I2C_SCL);
 
-// //     if(cpt >= 200)
-// //     {
-// //         thread_ping.flags_set(STOP_FLAG); //arrêter les threads
-// //         thread_pong.flags_set(STOP_FLAG);
+//     while(1) {
+//         // Print_temp_I2C(&i2c, ADDR_8_BIT_HUMID, REG_ADDR_TEMP, temp_data);
+//         // Print_humid_I2C(&i2c, ADDR_8_BIT_HUMID, REG_ADDR_HUMID, humid_data);
+//         Print_pressure_I2C(&i2c, ADDR_READ_PRESSURE, REG_ADDR_PRESSURE, pressure_data);
+//         // scan_I2C(&i2c);
+//     }
+// }
 
-// //     }
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PARTIE 3 TP : Ping Pong ////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// #include "utils.h"
+
+
+// #define BLINKING_RATE     500ms  // Blinking rate in milliseconds
+
+// #ifdef LED1
+//     DigitalOut led(LED1);
+// #else
+//     bool led;
+// #endif
+
+
+// #define ADDR_7_BIT_TEMP   0x48
+// #define ADDR_8_BIT_TEMP   0x48 << 1
+// #define REG_ADDR_TEMP     0xE3
+// #define ADDR_7_BIT_HUMID  0x40
+// #define ADDR_8_BIT_HUMID  0x40 << 1
+// #define REG_ADDR_HUMID    0xE5
+// #define ADDR_READ_PRESSURE  0x70 << 1 | 1
+// #define REG_ADDR_PRESSURE    0xF7
+
+// using namespace std::chrono;
+// #define STOP_FLAG 1
+
+// Thread thread_ping(osPriorityNormal, 1024); // Thread avec une pile de 1024
+// Thread thread_pong(osPriorityNormal, 1024);
+
+// Mutex mutex;
+// int cpt = 0;
+
+// void ping()
+// {
+//     while (!ThisThread::flags_wait_any_for(STOP_FLAG, 0s)) {
+//         mutex.lock();
+//         printf("Ping\n");
+//         cpt++;
+//         mutex.unlock();
+//         ThisThread::sleep_for(100ms);
+//     }
+// }
+
+// void pong()
+// {
+//     while (!ThisThread::flags_wait_any_for(STOP_FLAG, 0s)) {
+//         mutex.lock();
+//         printf("Pong\n");
+//         cpt++;
+//         mutex.unlock();
+//         ThisThread::sleep_for(100ms);
+//     }
+// }
+
+
+// int main()
+// {
+//     printf("Hello World\n");
+
+//     thread_ping.start(callback(ping)); // Démarrer les threads
+//     thread_pong.start(callback(pong));
+
+//     if(cpt >= 200)
+//     {
+//         thread_ping.flags_set(STOP_FLAG); //arrêter les threads
+//         thread_pong.flags_set(STOP_FLAG);
+
+//     }
         
 
-// //     printf("Done\n");
-// //     return 0;
-// // }
+//     printf("Done\n");
+//     return 0;
+// }
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////
-//PROJECT
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//// PROJET ////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <stdio.h>
 
@@ -204,7 +299,7 @@ uint8_t rx_buffer[30];
 /**
  * Dummy sensor class object
  */
-char *payload = "{\"temperature\": 32.5}";
+char payload[64];
 
 /**
 * This event queue is the global event queue for both the
@@ -238,13 +333,19 @@ static lorawan_app_callbacks_t callbacks;
  */
 int main(void)
 {
-
     // stores the status of a call to LoRaWAN protocol
     lorawan_status_t retcode;
 
     if (!smp.init()) {
         printf("Failed to init 2SMPB02E\n");
+    } else {
+        printf("Init 2SMPB02E OK\n");
+        smp.measure_single_shot();
+        snprintf(payload, sizeof(payload), "{\"temperature\":%.2f}", smp.temperature());
+        printf("%s", payload);
     }
+
+    printf("\nHello World!\n");
 
     ThisThread::sleep_for(100ms);
 
@@ -306,9 +407,37 @@ static void send_message()
 
     // TODO: Read sensor data
     smp.measure_single_shot();
+    
+    // Temperature
+    snprintf(payload, sizeof(payload), "{\"temperature\":%.2f}", smp.temperature() / 256);
+    printf("%s", payload);
+    
+    memcpy(tx_buffer, payload, strlen(payload));
+    packet_len = strlen(payload);
 
-    sprintf(payload, "{\"temperature\": %.2f}", smp.temperature() / 256.0);
+    retcode = lorawan.send(MBED_CONF_LORA_APP_PORT, tx_buffer, packet_len,
+                           MSG_UNCONFIRMED_FLAG);
 
+    if (retcode < 0) {
+        retcode == LORAWAN_STATUS_WOULD_BLOCK ? printf("send - WOULD BLOCK\r\n")
+        : printf("\r\n send() - Error code %d \r\n", retcode);
+
+        if (retcode == LORAWAN_STATUS_WOULD_BLOCK) {
+            //retry in 3 seconds
+            if (MBED_CONF_LORA_DUTY_CYCLE_ON) {
+                ev_queue.call_in(3000, send_message);
+            }
+        }
+        return;
+    }
+
+    printf("\r\n %d bytes scheduled for transmission \r\n", retcode);
+    memset(tx_buffer, 0, sizeof(tx_buffer));
+
+    // Pression
+    snprintf(payload, sizeof(payload), "{\"temperature\":%.2f, \"pressure\":%.2f}", 
+         smp.temperature() / 256, smp.pressure() / 100.0);
+    
     memcpy(tx_buffer, payload, strlen(payload));
     packet_len = strlen(payload);
 
@@ -364,7 +493,6 @@ static void lora_event_handler(lorawan_event_t event)
         case CONNECTED:
             printf("\r\n Connection - Successful \r\n");
             if (MBED_CONF_LORA_DUTY_CYCLE_ON) {
-                
                 send_message();
             } else {
                 ev_queue.call_every(TX_TIMER, send_message);
